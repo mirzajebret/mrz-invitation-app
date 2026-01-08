@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   // Kita gunakan sqlite dulu agar langsung jalan
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -29,6 +29,8 @@ model Invitation {
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   rsvps     RSVP[]
+  guests    Guest[]
+  views     InvitationView[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,4 +45,33 @@ model RSVP {
   
   invitationId String
   invitation   Invitation @relation(fields: [invitationId], references: [id])
+}
+
+model Guest {
+  id            String     @id @default(cuid())
+  name          String
+  customMessage String?
+  createdAt     DateTime   @default(now())
+  
+  invitationId  String
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  views         InvitationView[]
+  
+  @@index([invitationId])
+}
+
+model InvitationView {
+  id           String     @id @default(cuid())
+  viewedAt     DateTime   @default(now())
+  ipAddress    String?
+  userAgent    String?
+  
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  
+  guestId      String?
+  guest        Guest?     @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  
+  @@index([invitationId])
+  @@index([guestId])
 }

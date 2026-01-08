@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Disc, Music } from 'lucide-react';
-import type { Invitation } from '@prisma/client';
 
 // Helper untuk format tanggal Indonesia
 const formatDate = (date: Date) => {
@@ -16,10 +16,22 @@ const formatDate = (date: Date) => {
 };
 
 interface DefaultThemeProps {
-    invitation: Invitation;
+    invitation: {
+        id: string;
+        slug: string;
+        brideName: string;
+        groomName: string;
+        date: Date;
+        location: string;
+        musicUrl: string | null;
+        themeName: string;
+    };
 }
 
 export default function DefaultTheme({ invitation }: DefaultThemeProps) {
+    const searchParams = useSearchParams();
+    const guestName = searchParams.get('to');
+
     const [isOpen, setIsOpen] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -104,6 +116,17 @@ export default function DefaultTheme({ invitation }: DefaultThemeProps) {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.2 }}
                         >
+                            {guestName && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="mb-6"
+                                >
+                                    <p className="text-sm text-stone-500 mb-1">Kepada Yth.</p>
+                                    <p className="text-xl font-semibold text-stone-700">{guestName}</p>
+                                </motion.div>
+                            )}
                             <p className="mb-4 text-sm uppercase tracking-[0.2em] text-stone-500">The Wedding of</p>
                             <h1 className="mb-6 font-serif text-5xl font-bold text-stone-800 md:text-7xl">
                                 {invitation.groomName} <span className="text-stone-400">&</span> {invitation.brideName}
