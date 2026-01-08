@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Ubah ke "mysql" atau "sqlite" sesuai database Anda
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       @unique
+  name        String?
+  createdAt   DateTime     @default(now())
+  invitations Invitation[]
+}
+
+model Invitation {
+  id        String   @id @default(cuid())
+  slug      String   @unique // Ini untuk URL: domain.com/budi-ani
+  brideName String   // Nama Mempelai Wanita
+  groomName String   // Nama Mempelai Pria
+  date      DateTime
+  location  String
+  musicUrl  String?
+  themeName String   @default("default")
+  
+  // Relasi ke User (Pemilik undangan)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+
+  // Relasi ke RSVP
+  rsvps     RSVP[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RSVP {
+  id           String     @id @default(cuid())
+  name         String
+  status       String     // "hadir", "tidak_hadir", "ragu"
+  message      String?    @db.Text
+  createdAt    DateTime   @default(now())
+  
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id])
+}
