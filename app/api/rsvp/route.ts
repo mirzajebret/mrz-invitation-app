@@ -6,7 +6,6 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { invitationId, name, status, message } = body;
 
-        // Validasi sederhana
         if (!invitationId || !name || !status) {
             return NextResponse.json(
                 { error: 'Data tidak lengkap' },

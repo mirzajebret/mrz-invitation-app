@@ -3,13 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Ubah ke "mysql" atau "sqlite" sesuai database Anda
+  // Kita gunakan sqlite dulu agar langsung jalan
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id          String       @id @default(cuid())
-  email       @unique
+  email       String       @unique
   name        String?
   createdAt   DateTime     @default(now())
   invitations Invitation[]
@@ -17,19 +18,16 @@ model User {
 
 model Invitation {
   id        String   @id @default(cuid())
-  slug      String   @unique // Ini untuk URL: domain.com/budi-ani
-  brideName String   // Nama Mempelai Wanita
-  groomName String   // Nama Mempelai Pria
+  slug      String   @unique
+  brideName String
+  groomName String
   date      DateTime
   location  String
   musicUrl  String?
   themeName String   @default("default")
   
-  // Relasi ke User (Pemilik undangan)
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
-
-  // Relasi ke RSVP
   rsvps     RSVP[]
 
   createdAt DateTime @default(now())
@@ -39,8 +37,8 @@ model Invitation {
 model RSVP {
   id           String     @id @default(cuid())
   name         String
-  status       String     // "hadir", "tidak_hadir", "ragu"
-  message      String?    @db.Text
+  status       String
+  message      String?
   createdAt    DateTime   @default(now())
   
   invitationId String
